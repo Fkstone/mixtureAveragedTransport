@@ -6,6 +6,16 @@ Mixture-averaged species diffusion for **OpenFOAM** (openfoam.org): a laminar th
 
 ---
 
+## Theory and Implementation
+
+For a more detailed explanation of the physical principles and numerical methods behind `mixtureAveragedFourier`, see the companion article on my personal website:
+
+**[Mixture-Averaged Transport — Theory and Implementation](https://stone1fan.com/posts/mixture-averaged-transport/)**
+
+It discusses mixture-averaged diffusion coefficients, mole-fraction-driven species fluxes, correction velocity, heat-flux coupling, and the reasoning behind the numerical implementation. This README focuses on the model's features, validation, and usage.
+
+---
+
 ## Why
 
 OpenFOAM has three laminar diffusion models for multicomponent mixtures:
@@ -87,6 +97,8 @@ GPL-3.0, like OpenFOAM, from which this code is derived (`Fickian`, `FickianFour
 ---
 
 ## 中文简介
+
+**原理与实现详解：** [在个人网站阅读 Mixture-Averaged Transport 原理文章](https://stone1fan.com/posts/mixture-averaged-transport/)。文章介绍混合平均扩散系数、摩尔分数梯度驱动的扩散通量、修正速度，以及扩散与热通量的耦合等理论背景。
 
 这是 **OpenFOAM** 的混合平均扩散模型 `mixtureAveragedFourier`，用于多组分层流反应流。它与 Cantera / Chemkin 中的 mixture-averaged 模型相同。
 
