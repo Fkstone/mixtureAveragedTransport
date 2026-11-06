@@ -1,6 +1,6 @@
 # mixtureAveragedTransport
 
-Mixture-averaged species diffusion for **OpenFOAM 14** (openfoam.org): a laminar thermophysical transport model, `mixtureAveragedFourier`, for multicomponent reacting flows (`multicomponentFluid` solver). It is the same mixture-averaged model as in Cantera and Chemkin.
+Mixture-averaged species diffusion for **OpenFOAM** (openfoam.org): a laminar thermophysical transport model, `mixtureAveragedFourier`, for multicomponent reacting flows (`multicomponentFluid` solver). It is the same mixture-averaged model as in Cantera and Chemkin.
 
 [中文简介见下文](#中文简介)
 
@@ -8,7 +8,7 @@ Mixture-averaged species diffusion for **OpenFOAM 14** (openfoam.org): a laminar
 
 ## Why
 
-OpenFOAM 14 ships three laminar diffusion models for multicomponent mixtures:
+OpenFOAM has three laminar diffusion models for multicomponent mixtures:
 
 | Model | Accuracy | Cost |
 |---|---|---|
@@ -44,7 +44,7 @@ These tests used the 88-species n-heptane skeletal mechanism of Lu & Law at 6 MP
 
 ## Usage
 
-Build the library in this directory with the OpenFOAM 14 environment loaded:
+Build the library in this directory with the OpenFOAM environment loaded:
 
 ```sh
 wmake libso        # -> $FOAM_USER_LIBBIN/libmixtureAveragedTransport.so
@@ -88,7 +88,7 @@ GPL-3.0, like OpenFOAM, from which this code is derived (`Fickian`, `FickianFour
 
 ## 中文简介
 
-这是 **OpenFOAM 14** 的混合平均扩散模型 `mixtureAveragedFourier`，用于多组分层流反应流。它与 Cantera / Chemkin 中的 mixture-averaged 模型相同。
+这是 **OpenFOAM** 的混合平均扩散模型 `mixtureAveragedFourier`，用于多组分层流反应流。它与 Cantera / Chemkin 中的 mixture-averaged 模型相同。
 
 **为什么需要**：OpenFOAM 自带三种模型：
 - `unityLewisFourier`：没有差异扩散。
