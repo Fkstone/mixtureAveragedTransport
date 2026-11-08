@@ -43,14 +43,51 @@ Not included: Soret (thermal) diffusion, the Dufour effect, turbulence models (l
 
 ## Validation
 
-These tests used the 88-species n-heptane skeletal mechanism of Lu & Law at 6 MPa, with n-heptane vapour against H2/air.
+These tests used the 88-species n-heptane skeletal mechanism of Lu & Law at 6 MPa. Unless noted, the test case is a closed 1D strip (3.2 mm, 1 µm grid, 700 K) with a slab of pure n-heptane vapour against lean H2/air: the mean molecular weight changes from 100 to 25 g/mol across the interface. The diffusion models compared below use the same binary diffusion coefficients D_ij.
 
-- **Species fluxes vs Cantera.** On 1D profiles of T and Y, the fluxes match Cantera's mixture-averaged transport to 1e-4 (relative). The flux sum is zero to round-off.
-- **Autoignition vs Maxwell–Stefan.** The test case is a 1D closed strip with a fuel/air interface on a 1 µm grid. Against `MaxwellStefanFourier`, the ignition delay differs by 0.16 %, the flame-front position by less than 0.8 % and the mean pressure by 0.2 %. The run time is 46 % of the Maxwell–Stefan run.
-- **Memory.** 640 000 cells, 88 species, chemistry off: 8.25 GB with this model and 8.07 GB with `FickianFourier`.
-- **`unityLewisSpecies`.** Fluxes match a reference built from the cell values of κ, ρ and c_p to 8e-5.
-  - With all species listed, the temperature stays on the adiabatic mixing line before ignition: −0.4 K at 0.1 of the ignition delay.
-  - OpenFOAM's own `unityLewisFourier` diffuses `he` with κ/c_v when the energy variable is `sensibleInternalEnergy`. In the same case this heated the lean side by 4–7 K at 0.1 and by 10–14 K at 0.6 of the ignition delay.
+### Species fluxes
+
+On 1D profiles of T and Y, the fluxes match Cantera's mixture-averaged transport to 1e-4 (relative). The flux sum is zero to round-off.
+
+The figure compares the fluxes of the three OpenFOAM models on the same fields, before ignition and in the burning strip. Maxwell–Stefan is the reference: it agrees with Cantera's multicomponent transport to 1.5e-4. For the species shown this model is within 1.4–5.7 % of it (6.9 % for O2 before ignition). `FickianFourier` is off by up to 88 % for H2 and 72 % for N2.
+
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/fluxes_dark.png">
+  <img alt="Species mass fluxes of H2, n-heptane and N2 across the fuel/air interface at t = 0 and 7 ms: mixtureAveragedFourier lies on the Maxwell–Stefan curve, FickianFourier deviates strongly for H2 and N2" src="docs/fluxes_light.png">
+</picture>
+
+### Autoignition vs Maxwell–Stefan
+
+In the 1D strip, against `MaxwellStefanFourier`:
+- the ignition delay differs by 0.2 % (`FickianFourier`: 0.9 %);
+- the flame-front position differs by about 1 % (`FickianFourier`: up to 9 %);
+- the mean pressure differs by 0.2 % at 8 ms (`FickianFourier`: 5 %).
+
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/strip_dark.png">
+  <img alt="1D autoignition strip: maximum temperature, mean pressure and the temperature profile at 7.4 ms; mixtureAveragedFourier follows Maxwell–Stefan, FickianFourier ignites later and its front lags" src="docs/strip_light.png">
+</picture>
+
+### Cost
+
+- **Run time.** The strip run takes 48 % of the Maxwell–Stefan time and 1.27 times the `FickianFourier` time.
+- **Memory.** On 640 000 cells with 88 species this model needs about as much memory as `FickianFourier`: 8.25 GB against 8.07 GB with chemistry off, of which about 3.9 GB are the shared libraries of the 30 processes (the figure leaves them out). `MaxwellStefanFourier` stores one field per species pair and needed about 44 GB, measured during its first time step.
+
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/cost_dark.png">
+  <img alt="Run time of the 1D strip (Maxwell–Stefan 1060 s, mixtureAveragedFourier 505 s, FickianFourier 398 s) and memory for 640 000 cells (44, 4.3 and 4.2 GB)" src="docs/cost_light.png">
+</picture>
+
+### `unityLewisSpecies`
+
+Fluxes match a reference built from the cell values of κ, ρ and c_p to 8e-5.
+- With all species listed, the temperature stays on the adiabatic mixing line before ignition: within 0.4 K at 0.1 of the ignition delay.
+- OpenFOAM's own `unityLewisFourier` diffuses `he` with κ/c_v when the energy variable is `sensibleInternalEnergy`. In a strip with 800 K H2/air against 600 K n-heptane this heated the lean side by 4–7 K at 0.1 and by 10–14 K at 0.6 of the ignition delay.
+
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/unityLewis_dark.png">
+  <img alt="Temperature deviation from the adiabatic mixing line with unity Lewis number: up to +7 K with unityLewisFourier, within 0.4 K with mixtureAveragedFourier and unityLewisSpecies for all species" src="docs/unityLewis_light.png">
+</picture>
 
 ## Usage
 
@@ -117,9 +154,12 @@ GPL-3.0, like OpenFOAM, from which this code is derived (`Fickian`, `FickianFour
 - 内存与 `FickianFourier` 相当；支持负载均衡时的网格重分配。
 - 可选 `unityLewisSpecies`：指定组分的 Lewis 数为 1，其余组分仍按混合平均计算。例如可以只关掉燃料的差异扩散。列出全部组分就得到严格的单位 Lewis 数模型，并且能量通量正确。
 
-**检验**（n-庚烷 88 组分骨架机理，6 MPa）
-- 组分通量与 Cantera 相差 1e-4 以内。
-- 一维自燃算例与 Maxwell–Stefan 相比：着火时间差 0.16 %，计算时间为后者的 46 %。
-- 64 万网格的内存为 8.25 GB，`FickianFourier` 为 8.07 GB。
+**检验**（n-庚烷 88 组分骨架机理，6 MPa；对比图见上文 Validation）
+- 组分通量与 Cantera 的混合平均输运相差 1e-4 以内。
+- 与 Maxwell–Stefan 的通量相比，图中各组分相差 1.4–5.7 %；`FickianFourier` 最多差 88 %。
+- 一维自燃算例与 Maxwell–Stefan 相比：
+  - 着火时间差 0.2 %，火焰锋位置差约 1 %，平均压力差 0.2 %；
+  - 计算时间为后者的 48 %。
+- 64 万网格的内存为 8.25 GB，`FickianFourier` 为 8.07 GB，Maxwell–Stefan 约 44 GB。
 
 不包含 Soret 效应和湍流模型。只在 OpenFOAM 14（openfoam.org）上测试过。许可证为 GPL-3.0。
